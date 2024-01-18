@@ -1,4 +1,4 @@
-# LAB - Class 06
+# LAB - Class 07
 
 ## Project: Ten Thousand
 
@@ -19,4 +19,4 @@
 
 #### How to initialize/run your application (where applicable)
 
-- Not implemented yet
+- `python -m ten_thousand.game`
