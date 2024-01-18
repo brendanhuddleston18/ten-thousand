@@ -11,6 +11,9 @@ user_answer = ''
 rolled_dice = ''
 
 def welcome():
+  """
+  """
+
   print("""Welcome to Ten Thousand
 (y)es to play or (n)o to decline""")
   user_start = input("> ")
@@ -23,6 +26,9 @@ def welcome():
     welcome()
 
 def keep_bank_quit_function():
+  """
+  """
+
   global roll
   global user_answer
   global dice_chosen
@@ -34,7 +40,7 @@ def keep_bank_quit_function():
   if roll == 1:
     print("Enter dice to keep, or (q)uit:")
     user_answer = input("> ")
-    if user_answer == "q":
+    if user_answer.lower() == "q":
       print("OK. Maybe another time")
     else:
       roll += 1
@@ -45,16 +51,16 @@ def keep_bank_quit_function():
   else: 
     print("(r)oll again, (b)ank your points or (q)uit:")
     user_answer = input("> ")
-    if user_answer == "q":
+    if user_answer.lower() == "q":
       print(f"Thanks for playing. You earned {banked_score} points")
-    elif user_answer == "b":
+    elif user_answer.lower() == "b":
       banked_score += unbanked_points
       unbanked_points = 0
       dice_chosen = []
       dice_remaining = 6
       user_round += 1
       game()
-    elif user_answer == "r":
+    elif user_answer.lower() == "r":
       unbanked_points = 0
       dice_chosen = []
       dice_remaining = 6
@@ -66,15 +72,14 @@ def keep_bank_quit_function():
       calculate_score()
       game()
 
-def game(num_dice=6):
+def game():
+  """
+  """
   global roll
   global dice_remaining
   global unbanked_points
   global rolled_dice
   global banked_score
-  print(f"dice remaining at game: {dice_remaining}")
-  print(f"split list at game {split_list}")
-  print(f"dice_chosen at game {dice_chosen}")
 
   rolled_dice = GameLogic.roll_dice(dice_remaining)
   if unbanked_points:
@@ -88,6 +93,8 @@ def game(num_dice=6):
 
 
 def calculate_score():
+ """
+ """
  global unbanked_points
  global dice_chosen
  global rolled_dice
@@ -101,10 +108,11 @@ def calculate_score():
  unbanked_points += roll_score
 
 def subtract_dice_remaining():
-  global split_list
-  global dice_chosen
+  """
+  """
   global dice_remaining
+  print(split_list)
   dice_remaining = 6 - len(split_list)
-  return dice_remaining
+
 
 welcome()
