@@ -1,17 +1,26 @@
 from ten_thousand.game_logic import GameLogic
 
-roll = 1
-user_round = 1
-banked_score = 0
-unbanked_points = 0
-dice_chosen = []
-split_list = []
 dice_remaining = 6
-user_answer = ''
-rolled_dice = ''
+unbanked_score = 0
+banked_score = 0
+round_num = 1
+roll = 0
+hot_dice_index = 0
+dice_chosen = []
+current_roll = []
 
-def welcome():
+def play(roller=None):
+  welcome()
+
+def welcome(roller=None):
   """
+  Welcomes user to Ten Thousand game
+
+  Parameters
+  - None
+
+  Returns
+  - None
   """
 
   print("""Welcome to Ten Thousand
@@ -20,99 +29,202 @@ def welcome():
   if user_start.lower() == 'n':
     print("OK. Maybe another time")
   elif user_start.lower() == 'y':
-    game()
+    play_round()
   else:
     print("Bro follow the rules")
     welcome()
 
-def keep_bank_quit_function():
-  """
-  """
 
-  global roll
-  global user_answer
-  global dice_chosen
-  global banked_score
-  global unbanked_points
-  global dice_remaining
-  global user_round
-
-  if roll == 1:
-    print("Enter dice to keep, or (q)uit:")
-    user_answer = input("> ")
-    if user_answer.lower() == "q":
-      print("OK. Maybe another time")
-    else:
-      roll += 1
-      dice_chosen.append(user_answer)
-      subtract_dice_remaining()
-      calculate_score()
-      game()
-  else: 
-    print("(r)oll again, (b)ank your points or (q)uit:")
-    user_answer = input("> ")
-    if user_answer.lower() == "q":
-      print(f"Thanks for playing. You earned {banked_score} points")
-    elif user_answer.lower() == "b":
-      banked_score += unbanked_points
-      unbanked_points = 0
-      dice_chosen = []
-      dice_remaining = 6
-      user_round += 1
-      game()
-    elif user_answer.lower() == "r":
-      unbanked_points = 0
-      dice_chosen = []
-      dice_remaining = 6
-      game()
-    else:
-      roll += 1
-      dice_chosen.append(user_answer)
-      subtract_dice_remaining()
-      calculate_score()
-      game()
-
-def game():
+def play_round():
   """
-  """
-  global roll
-  global dice_remaining
-  global unbanked_points
-  global rolled_dice
-  global banked_score
+  Starts a round of the Ten Thousand game
 
-  rolled_dice = GameLogic.roll_dice(dice_remaining)
-  if unbanked_points:
-    print(f"you have {unbanked_points} unbanked points and {dice_remaining} dice remaining")
+  Parameters
+  - Round Number that the user is on
+
+  Returns
+  - None
+  """
   if banked_score:
-    print(f"Total Score is {banked_score}")
-  print(f"Starting round {user_round}")
-  print(f"Rolling {dice_remaining} dice")
-  print(f"*** {rolled_dice} ***")
-  keep_bank_quit_function()
+    print(f"Total score is {banked_score} points")
+  print(f"Starting round {round_num}")
+  roll_dice()
 
+
+def roll_dice():
+  """
+  Rolls the dice using the game logic method "roll_dice"
+
+  parameters
+  - None
+
+  Returns
+  - None
+  """
+  global dice_remaining
+  global roll
+  global current_roll
+  tuple_rolled_dice = GameLogic.roll_dice(dice_remaining)
+  current_roll = tuple_rolled_dice
+  string_rolled_dice = ' '.join(str(dice) for dice in tuple_rolled_dice)
+  print(f"Rolling {dice_remaining} dice...")
+  print(f"*** {string_rolled_dice} ***")
+  zilch_dice = GameLogic.calculate_score(tuple_rolled_dice)
+  roll += 1
+  zilch_checker(zilch_dice)
+  user_answer()
+  
+
+
+def user_answer():
+  """
+  Handles all user inputs and directs them to the corresponding function
+
+  Parameters
+  - None
+
+  Returns
+  - None
+  """
+
+  if roll ==1:
+    print("Enter dice to keep, or (q)uit:")
+  else:
+    print("(r)oll again, (b)ank your points or (q)uit:")
+
+  user_input = input("> ")
+
+  if user_input == "r":
+    roll_dice()
+  elif user_input == "b":
+    bank_score()
+  elif user_input == "q":
+    handle_quit()
+  else:
+    handle_keep(user_input)
+
+def handle_keep(user_input):
+  """
+  Handles the dice that the user selects, adds them to dice_chosen list and calls calculate_score()
+
+  Parameters
+  - user_input if they decide to keep a dice
+
+  Returns
+  - None
+  """
+  global dice_remaining
+  dice_chosen.extend([int(dice) for dice in user_input])
+
+  if check_user_cheating(current_roll, dice_chosen):
+    calculate_score()
+    dice_remaining -= len(dice_chosen)
+    # dice_chosen.clear()r
+    
+  else:
+    print("Cheater!!! Or possibly made a typo...")
+    dice_chosen.clear()
+    user_answer()
 
 def calculate_score():
- """
- """
- global unbanked_points
- global dice_chosen
- global rolled_dice
- global split_list
- global dice_remaining
- int_dice_chosen = []
- split_list = [char for num in dice_chosen for char in num]
- for num in split_list:
-   int_dice_chosen.append(int(num))
- roll_score = GameLogic.calculate_score(int_dice_chosen)
- unbanked_points += roll_score
+  """
+  Calculates score, Get's called automatically from handle_keep when user selects di
 
-def subtract_dice_remaining():
+  Parameters
+  - None
+
+  Returns 
+  - None
   """
+  global unbanked_score
+  global hot_dice_index
+  global roll
+  score = GameLogic.calculate_score(dice_chosen)
+  if score:
+    hot_dice_index += len(dice_chosen)
+    print(f"hot dice index: {hot_dice_index}")
+  unbanked_score += score
+  print(f"You have {unbanked_score} unbanked points and {dice_remaining} dice remaining")
+  roll += 1
+  hot_dice_checker()
+  dice_chosen.clear()
+  user_answer()
+  # roll_dice()
+
+def bank_score():
   """
+  Banks user score if they decide to in user_answer
+
+  Parameters
+  - None
+
+  Returns 
+  - None
+  """
+  global banked_score
+  global unbanked_score
+  global round_num
   global dice_remaining
-  print(split_list)
-  dice_remaining = 6 - len(split_list)
+  global roll
+  print(f"you banked {unbanked_score} in round {round_num}")
+  banked_score += unbanked_score
+  round_num +=1
+  dice_remaining = 6
+  unbanked_score = 0
+  roll = 0
+  dice_chosen.clear()
+  play_round()
 
+def zilch_checker(roll_score):
+  """
+  
+  """
+  global round_num
+  global dice_remaining
+  global roll
+  global unbanked_score
+  if roll_score == 0:
+    print("""****************************************
+**        Zilch!!! Round over         **
+****************************************""")
+    round_num += 1
+    dice_remaining = 6
+    roll = 0
+    unbanked_score = 0
+    dice_chosen.clear()
+    play_round()
 
-welcome()
+def hot_dice_checker():
+  global dice_remaining
+  global hot_dice_index
+  if hot_dice_index >= 6:
+    # dice_remaining = 6
+    dice_chosen.clear()
+    roll_dice()
+    hot_dice_index = 0
+
+def check_user_cheating(dice_list, dice_chosen):
+    dice_list_count = {num: dice_list.count(num) for num in set(dice_list)}
+    dice_chosen_count = {num: dice_chosen.count(num) for num in set(dice_chosen)}
+
+    for num in dice_chosen_count:
+        if dice_chosen_count[num] > dice_list_count.get(num, 0):
+            return False
+    return True
+      
+    
+
+def handle_quit():
+  """
+  Will quit the game if user types 'q' in user_answer function
+
+  Parameters
+  - None
+
+  returns 
+  - None
+  """
+  print(f"Thanks for playing. You earned {banked_score} points")
+
+if __name__ == "__main__":
+  play()
