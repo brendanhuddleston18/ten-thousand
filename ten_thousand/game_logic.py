@@ -41,7 +41,16 @@ class GameLogic:
                 score += count * 50
 
         return score
+    
 
+    @staticmethod
+    def get_scorers(scoring_dice):
+        dice_that_score = (1, 5)
+        inputted_dice_that_score = []
+        for num in scoring_dice:
+            if num in dice_that_score:
+                inputted_dice_that_score.append(num)
+        return tuple(inputted_dice_that_score)
 
     @staticmethod
     def roll_dice(num_dice):
