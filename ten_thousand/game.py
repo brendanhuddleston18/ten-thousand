@@ -72,11 +72,11 @@ def roll_dice():
   zilch_dice = GameLogic.calculate_score(tuple_rolled_dice)
   roll += 1
   zilch_checker(zilch_dice)
-  user_answer()
+  user_answer(user_inputted_value=True)
   
 
 
-def user_answer():
+def user_answer(user_inputted_value=False):
   """
   Handles all user inputs and directs them to the corresponding function
 
@@ -87,7 +87,7 @@ def user_answer():
   - None
   """
 
-  if roll ==1:
+  if user_inputted_value == True:
     print("Enter dice to keep, or (q)uit:")
   else:
     print("(r)oll again, (b)ank your points or (q)uit:")
@@ -117,10 +117,9 @@ def handle_keep(user_input):
   dice_chosen.extend([int(dice) for dice in user_input])
 
   if check_user_cheating(current_roll, dice_chosen):
-    calculate_score()
     dice_remaining -= len(dice_chosen)
-    # dice_chosen.clear()r
-    
+    calculate_score()
+    # dice_chosen.clear()r   
   else:
     print("Cheater!!! Or possibly made a typo...")
     dice_chosen.clear()
