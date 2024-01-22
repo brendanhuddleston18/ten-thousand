@@ -69,13 +69,15 @@ def roll_dice(roller=None):
   global string_rolled_dice
 
   if roller:
-    mock_roll = roller()
+    mock_roll = roller(6)
     # print(f"mock roll: {mock_roll}")
     mock_roll_str = ''
     for num in mock_roll:
       mock_roll_str += str(num) + " "
+      dice_chosen.append(num)
+    print(dice_chosen)
     print(f"Rolling 6 dice...")
-    print(f"*** {mock_roll_str} ***")
+    print(f"*** {mock_roll_str}***")
     zilch_checker(mock_roll)
   else:
     tuple_rolled_dice = GameLogic.roll_dice(dice_remaining)
@@ -222,10 +224,20 @@ def hot_dice_checker():
   if hot_dice_index >= 6:
     hot_dice_index = 0
     dice_chosen.clear()
-    # dice_remaining = 6
-    # roll_dice()
+
 
 def check_user_cheating(dice_list, dice_chosen):
+    """
+    If user enters a number that is not on screen or too many of the same number, will alert a message and prompt user to reenter their selected dice
+
+    Parameters
+    - The dice that the user enters
+    - The list of dice currently displayed on screen
+
+    Returns 
+    - False if user enters number not on screen or too many of certain number
+    - True if user enters correct amount/dice
+    """
     dice_list_count = {num: dice_list.count(num) for num in set(dice_list)}
     dice_chosen_count = {num: dice_chosen.count(num) for num in set(dice_chosen)}
 
@@ -255,8 +267,8 @@ if __name__ == "__main__":
 
   rolls = [(5, 2, 3, 5, 4, 2), (2, 3, 1, 3, 1, 2), (4, 1, 4, 4, 3, 4), (3, 2, 3, 2, 1, 4), (1, 2, 5, 1, 2, 1)]
 
-  def mock_roller():
-    return rolls.pop(1)
+  def mock_roller(num=6):
+    return rolls.pop(0)
 
 
   # play(mock_roller)
